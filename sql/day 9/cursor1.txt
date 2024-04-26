@@ -1,0 +1,218 @@
+drop procedure dispallemp;
+delimiter //
+create procedure dispallemp()
+	begin 
+		declare vfinished int default 0;
+		declare vempno, vmgr, vdeptno int;
+		declare vename, vjob varchar(30);
+		declare vsal, vcomm float(9,2);
+		declare vhiredate date;
+		declare empcur cursor for select * from emp;
+		declare continue handler for NOT FOUND set vfinished = 1;
+		open empcur;
+			lable1:loop
+				fetch empcur into vempno,vename,vjob,vmgr,vhiredate,vsal,vcomm,vdeptno;
+				if vfinished = 1 then 
+					leave lable1;
+				end if;
+				select vempno,vename,vjob,vmgr,vhiredate,vsal,vcomm,vdeptno;
+			end loop;
+		close empcur;
+	end //
+	delimiter ;
+call dispallemp();
+	
+	
+drop procedure updatesal;
+delimiter //
+create procedure updatesal(out mc int, out  cc int, out ac int, out oc int)
+	begin
+		declare vfin int default 0;
+		declare vename , vjob varchar (30);
+		declare vsal,vinsal float(9,2);
+		declare vempno int;
+		declare empcur cursor for select empno,ename, job, sal from emp;
+		declare continue handler for NOT FOUND set vfin = 1;
+		set mc = 0;
+		set cc = 0;
+		set ac = 0;
+		set oc = 0;
+		open empcur;
+			lable1:loop
+				fetch empcur into vempno,vename, vjob, vsal;
+				if vfin = 1 then	
+					leave lable1;
+				end if;
+				
+				if vjob = 'Manager' then 
+					set mc = mc + 1;
+					set vinsal = vsal*1.1;
+					update emp
+					set sal = vinsal 
+					where empno = vempno;
+				
+				elseif vjob = 'CLERK' then
+					set cc = cc + 1;
+					set vinsal = vsal*1.2;
+					update emp
+					set sal = vinsal 
+					where empno = vempno;
+				
+				elseif vjob = 'ANALYST' then
+					set ac = ac + 1;
+					set vinsal = vsal*1.25;
+					update emp
+					set sal = vinsal 
+					where empno = vempno;	
+				else 
+					set oc = oc + 1;
+					set vinsal = vsal*1.08;
+					update emp
+					set sal = vinsal 
+					where empno = vempno;
+				end if;
+				select vempno, vename, vjob, vsal, vinsal;
+			end loop;
+		close empcur;
+	end //
+	delimiter ;
+	
+	
+drop procedure displaystatus;
+delimiter //
+create procedure displaystatus()
+begin
+	declare vempno, vdeptno int;
+	declare vename, vjob, staus varchar(100);
+	declare vsal,vavg float(9,2);
+	declare vfin int default 0;
+	declare empcur cursor for select empno, ename, job, sal ,deptno from emp;
+	declare continue handler for NOT FOUND set vfin = 1;
+	open empcur;
+		lable1:loop
+			fetch empcur into vempno,vename,vjob,vsal, vdeptno;
+				if vfin = 1 then 
+					leave lable1;
+				end if;
+			select avg(sal) into vavg from emp  where deptno = vdeptno;
+			if vsal>vavg then set staus = "Greater";
+			elseif vsal=vavg then set staus = "Equal";
+			else set staus = "Lesser";
+			end if;
+			select vempno,vename,vjob,vsal, vdeptno,vavg,staus;
+		end loop;
+	close empcur;
+end//
+delimiter ;
+	
+********************************************************************
+	
+	
+set GLOBAL log_bin_trust_function_creators = 1;
+delimiter //
+create function calexp(chiredate date)returns int
+begin
+	declare cexp int;
+	set cexp = floor(datediff(curdate(), chiredate)/365);
+	return cexp;
+end//
+delimiter ;
+
+create table emp_allowance(
+	empno int,
+	ename varchar(20),
+	hiredate date,
+	experience int,
+	allowance decimal(9,2));
+);
+
+
+
+
+
+drop procedure updatesalexp;
+delimiter //
+create procedure updatesalExp()
+begin 
+	declare vfin int default 0;
+	declare vexp int ;
+	declare vempno, vdeptno int ;
+	declare vename varchar(50);
+	declare ehiredate date;
+	declare vsal, vupatedsal, vallowance float (9,2) default 0; 
+	declare empcur cursor for select empno, ename, deptno, hiredate, sal from emp;
+	declare continue handler for NOT FOUND set vfin = 1 ;
+	open empcur;
+		lable1:loop
+			fetch empcur into vempno, vename, vdeptno,ehiredate,vsal ;
+			if vfin = 1 then 
+				leave lable1;
+			end if;
+			
+			set vexp =  calexp(ehiredate);
+			if vexp=42 then
+				set vupatedsal = vsal * 1.2;
+				update emp 
+				set sal = vupatedsal
+				where empno = vempno;
+			elseif vexp=43 then
+				set vupatedsal = vsal * 1.25;
+				update emp 
+				set sal = vupatedsal
+				where empno = vempno;	
+			else 
+				set vupatedsal = vsal * 1;
+				update emp 
+				set sal = vupatedsal
+				where empno = vempno;
+			end if;
+			
+			if vexp=42 then
+				set vallowance = vexp * 3000;
+	
+			elseif vexp=43 then
+				set vallowance = vexp * 3000;
+
+			elseif vexp=41 then
+				set vallowance = vexp * 3000;
+		
+			end if;
+			
+			
+			select vempno, vename, vdeptno,vsal,vexp,vupatedsal,vallowance ;
+		end loop;
+	close empcur;
+end //
+delimiter ; 
+call updatesalExp();
+	
+********************************************************************
+	
+set GLOBAL log_bin_trust_function_creators = 1;
+delimiter //
+create function ctc(vsal float(9,2), vhiredate date)returns float(9,2)
+begin
+	declare vexp int; 
+	declare da, hra, ta float(9,2);
+	declare special_allowance float(9,2);
+	set da = vsal * 0.15;
+	set hra = vsal * 0.20;
+	set ta = vsal * 0.08;
+	set vexp = calexp(vhiredate);
+	
+	if vexp = 41 then 
+		set special_allowance = 0;
+	elseif vexp = 42 then	
+		set special_allowance = vsal * 0.2;
+	else
+		set special_allowance = vsal * 0.3;
+	end if;
+	
+	return vsal + da + hra + ta + special_allowance ;
+end //
+delimiter ;
+	
+*****************************************************************
+	
+	
+	

@@ -1,0 +1,53 @@
+drop procedure displaystatus;
+delimiter //
+create procedure displaystatus()
+begin
+	declare vempno, vdeptno int;
+	declare vename, vjob, staus varchar(100);
+	declare vsal,vavg float(9,2);
+	declare vfin int default 0;
+	declare empcur cursor for select empno, ename, job, sal ,deptno from emp;
+	open empcur;
+		lable1:loop
+			fetch empcur into vempno,vename,vjob,vsal, vdeptno;
+			select avg(sal) into vavg from emp  where deptno = vdeptno;
+			if vsal>vavg then set staus = "Greater";
+			elseif vsal=vavg then set staus = "Equal";
+			else set staus = "Lesser";
+			end if;
+			select vempno,vename,vjob,vsal, vdeptno,vavg,staus;
+		end loop;
+	close empcur;
+end//
+delimiter ;
+call displaystatus();
+
+
+
+drop procedure displaystatus;
+delimiter //
+create procedure displaystatus()
+begin
+	declare vempno, vdeptno int;
+	declare vename, vjob, staus varchar(100);
+	declare vsal,vavg float(9,2);
+	declare vfin int default 0;
+	declare empcur cursor for select empno, ename, job, sal ,deptno from emp;
+	declare continue handler for NOT FOUND set vfin = 1;
+	open empcur;
+		lable1:loop
+			fetch empcur into vempno,vename,vjob,vsal, vdeptno;
+				if vfin = 1 then 
+					leave lable1;
+				end if;
+			select avg(sal) into vavg from emp  where deptno = vdeptno;
+			if vsal>vavg then set staus = "Greater";
+			elseif vsal=vavg then set staus = "Equal";
+			else set staus = "Lesser";
+			end if;
+			select vempno,vename,vjob,vsal, vdeptno,vavg,staus;
+		end loop;
+	close empcur;
+end//
+delimiter ;
+call displaystatus();

@@ -1,0 +1,55 @@
+create table product(
+	pid int primary key auto_increment,
+	pname varchar(10),
+	price float(9,2),
+	qty int,
+	cid int,
+	sid int,
+	constraint fk_cid foreign key(cid) references category(cid),
+	constraint fk_cid foreign key(sid) references salesman(sid)
+);
+insert into product (pname, price, qty, cid, sid) values
+	('chaku', 30, 2, 1,1),('pen', 50, 1, 2,2),('book', 100, 5, 1,3);
+
+create table salesman(
+	sid int primary key auto_increment,
+	sname varchar(10),
+	saddress varchar(20)
+);
+
+insert into salesman (sname, saddress) values
+	('sham', 'pune'),('ram', 'wakad'), ('radhe','pune');
+create table category(
+	cid int primary key auto_increment,
+	cname varchar(10),
+	descp varchar(20)
+);
+insert into category (cname, descp) values
+	('cat1', 'cat1desc'),('cat2', 'cat2desc'), ('cat3','cat3desc');
+	
+	
+select p.pname, c.cname, s.sname from product p
+inner join category c on c.cid = p.pid
+inner join salesman s on s.sid = p.pid;
+	
+select p.pname, s.sname from product p
+inner join salesman s on s.sid = p.pid
+where saddress = 'pune';
+	
+select p.pname, c.cname from product p
+inner join category c on c.cid = p.pid;
+
+
+day 8 assingment:
+5. write a procedure to display all pid,pname,cid,cname and salesman name(use
+product,category and salesman table)
+delimiter //
+create procedure displayinfoproduct()
+begin 
+	select p.pid ,p.pname,c.cid, c.cname,s.sid, s.sname from product p
+	inner join category c on c.cid = p.pid
+	inner join salesman s on s.sid = p.pid;	
+end //
+delimiter ;
+call displayinfoproduct();
+

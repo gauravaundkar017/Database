@@ -1,0 +1,97 @@
+1. Find all books whose author is Faisal Abid and display name of book authors and categories
+db.book.find({authors : 'Faisal Abid'},{authors : 1, categories : 1, _id:0})
+db.book.find({authors :{$in : ['Faisal Abid']}},{authors : 1, categories : 1, _id:0})
+
+
+
+
+2. List all the books with category Internet at first position in category array
+db.book.find({"categories.0" : 'Internet'})
+
+
+
+3. Change the status of books “undergoing change” for books having more than 500 pages and published in 2009..
+db.book.updateMany({pageCount : {$gt : 500}, 
+$expr : {$eq : [{$year : "$publishedDate"}, 2009]}},
+{$set : {"status" : "undergoing change"}})
+
+
+
+
+4. Find all the books containing word highlighting and depth in long description of the book
+ db.book.find({"longDescription": /highlighting | depth/})
+
+
+
+5. Display all books published in 2009
+db.book.find({$expr : {$eq : [{$year : "$publishedDate"}, 2009]}}).count()
+
+
+
+
+6. Find all books with pageCount is either 500 or 556 or 670
+db.book.find({pageCount : {$in : [556, 670]}}).count()
+
+
+
+7. Add 2 categories “kindle” and “hard bind” in all the books if its pageCount >200 and < 500 or number of pages >500
+db.book.updateMany({pageCount : {$lt : 500, $gt : 200}},{$push : {"categories" : {$each : ['kindle',"hard bind"]}}})
+
+{$push : categories : {$each : ['kindle',“hard bind”]}}
+db.book.find({pageCount : {$lt : 500, $gt : 200}},{}).count()
+
+
+
+8. List all the books which has thumbnailUrl key
+db.book.find({thumbnailUrl : {$exists : true}}).count()
+
+
+9. Add key type with values [“fiction”,”moral stories”,”adventurous”] in all books whose title starts with Fl and contains a some where in the name
+db.book.updateMany({title : /Fl/i}, 
+{$set :{"type":["fiction","moral stories","adventurous"]}}, {multi : true, upsert : true})
+
+db.book.find({title : /Fl/i}).count()
+
+
+
+10. Add a key comments :[{comment:” like the book” ,date:ISODate(“2019-09-01”)},
+db.book.updateMany({},{$set : {"comments" : [{comment : "Like the book"},{date:ISODate("2019-09-01")]}})
+
+db.book.updateMany({},{$set : {"comments" : [{comment : "Like the book"},{ "date": new Date() }]}})
+
+
+
+11. Add new author “myauthor” at position 2 for all books whose title starts with h or m and contains s at 2nd last position
+db.book.updateMany({title : {$regex : '^[HM].*$'}},{$set : {$push : {"authors" : {$each : ["myauthor"], $position : 1}}}})
+
+
+12. Increase pageCount by 100 for all books whose author at 1 st position is “Gal Shachor”
+db.book.updateMany({'authors.0' : "Gal Shachor"},{$inc : {pageCount : 100}})
+
+db.book.find({'authors.0' : "Gal Shachor"})
+
+
+
+13. Overwrite “Magnus Rydin" with name “Fr”
+db.book.find({authors : 'Magnus Rydin'},{authors : 1, categories : 1, _id:0})
+db.book.updateMany({},{$set : {'authors.$ : 'Fr'}})
+
+db.book.updateMany({},{$set : {'authors.$[e]' : 'Magnus Rydin'}},{arrayFilters : [{e : 'Fr'}]})
+
+db.book.updateMany(
+  {},
+  { $set: { 'authors.$[e]': 'Magnus Rydin' } },
+  { arrayFilters: [{ 'e': 'Fr' }] }
+)
+
+
+
+{$set : {authors : 'Fr'}},
+{arrayFilters : [e : {authors : 'Magnus Rydin'}] }
+
+14. List all books title, status, pageCount, comments for all books with pages > 300 or <
+500 or title starts with a or isbn starts with 193
+
+db.book.find({$or : [{pageCount : {$gt : 300, $lt : 500}},{title : /^a/i},{isbn : /193/}]},{title : 1, status: 1, pageCount : 1, comments : 1, _id:0})
+
+{$and : [{pageCount : {$gt : 300, $lt : 500}},{title : /^a/i},{isbn : /193/}]}

@@ -1,0 +1,170 @@
+delimiter //
+create procedure insertemp(eid int, enm varchar(20), esal float(9,2),ejob varchar(10), ehiredate date)
+begin 
+	insert into emp(empno, ename, sal,job, hiredate)
+	values (eid, enm, esal, ejob, ehiredate);
+end //
+delimiter ;
+call insertemp(7, 'Dhoni', 1000,'wk', '2024-10-10');
+***********************************************************
+delimiter //
+create procedure deleteemp(in eid int)
+begin
+	delete from emp 
+	where empno = eid; 
+end //
+delimiter ;
+call deleteemp(7);
+*********************************************************
+delimiter //
+create procedure dispbysa2(in esal float(9,2))
+begin
+	select e.empno, e.ename, e.sal,e.deptno, d.dname from emp e 
+	inner join dept d on d.deptno = e.deptno
+	where esal<sal; 
+end //
+delimiter ;
+call dispbysal2(1500);
+******************************************************
+delimiter //
+create procedure displayvalue1(did int,out emin float(9,2), out emax float(9,2),out eavg float(9,2),out cnt int)
+begin
+	select min(sal), max(sal),avg(sal),count(*) 
+	into emin, emax, eavg, cnt  
+	from emp e 
+	where did = e.deptno
+	;
+	select  emin, emax, eavg, cnt;
+end //
+delimiter ;
+call displayvalue1(10,@mn, @mx, @av, @ct);
+select @mn, @mx, @av, @ct;
+
+
+*****************************************************
+delimiter //
+create procedure displaystatus(did int)
+begin
+	select empno, ename, sal, deptno,
+	case when sal is null or sal = 0 then 'Poor performance'
+	when sal <=  500 then 'ok performance'
+	when sal <= 1500 then 'good performance'		
+	else 'excellent performance' 
+	end status
+ 	from emp 
+	where did = deptno; 
+
+end //
+delimiter ;
+call displaystatus(10);
+
+delimiter //
+create procedure displaystatus(did int, out status varchar(20))
+begin
+	select empno, ename, sal, deptno,
+	case when sal is null or sal = 0 then 'Poor performance'
+	when sal <=  500 then 'ok performance'
+	when sal <= 1500 then 'good performance'		
+	else 'excellent performance' 
+	end status
+ 	from emp 
+	where did = deptno; 
+	if   
+
+end //
+delimiter ;
+call displaystatus(10);
+********************************************************************************
+6. write a procedure to display all vehicles bought by a customer. pass customer name as
+a parameter.(use vehicle,salesman,custome and relation table)
+drop procedure displayVehicle;
+delimiter //
+create procedure displayVehicle(pname varchar(20))
+    begin
+    select c.cname, v.vname from customer c
+    inner join cust_vehicle cv on c.custid = cv.custid
+    inner join vehicle v on v.vid = cv.vid
+    where c.cname = pname;
+    end //
+
+delimiter ;
+call displayVehicle('Nilima');
+
+
+
+delimiter //
+create procedure displayVehicle(pname varchar(20), out pcname varchar(20), out pvname varchar(20))
+begin
+	select c.cname, v.vname into pcname , pvname from customer c 
+	inner join cust_vehicle cv on c.custid = cv.custid
+	inner join vehicle v on v.vid = cv.vid
+	where c.cname = pname;
+	select pcname, pvname;
+end //
+delimiter ;
+call displayVehicle('Ganesh', @v, @n);
+***************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

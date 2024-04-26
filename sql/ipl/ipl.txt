@@ -1,0 +1,66 @@
+create table if not exists team (
+tid int primary key,
+tname varchar(10)
+player_num int
+);
+
+create table if not exists player(
+pid int primary key,
+pname varchar(10),
+speciatlity enum('batter', 'bowler' , 'all rounder', 'wk'),
+doj date,
+num_matches int,
+tid int,
+constraint fk_tid foreign key(tid) references team (tid) on delete set null on update cascade
+);
+
+
+
+create table if not exists matches(
+mid int primary key,
+team_1 int,
+team_2 int,
+match_date date,
+winner int,
+man_of_the_match int,
+constraint fk_team1 foreign key(team_1) references team(tid),
+constraint fk_team2 foreign key(team_2) references team(tid),
+constraint fk_man_of_the_match foreign key(man_of_the_match) references player(pid),
+constraint chk_win check( winner in (team_1, team_2))
+);
+
+SELECT mid, 
+    (SELECT tname FROM team WHERE tid = team_1) AS team1_name,
+    (SELECT tname FROM team WHERE tid = team_2) AS team2_name,
+    match_date
+FROM matches
+WHERE man_of_the_match IN (SELECT pid FROM player WHERE tid = team_2);
+
+
+INSERT INTO team (tid, tname, player_num) VALUES
+(1, 'Chennai Super Kings', 20),
+(2, 'Mumbai Indians', 20),
+(3, 'Royal Challengers Bangalore', 20),
+(4, 'Kolkata Knight Riders', 20),
+(5, 'Sunrisers Hyderabad', 20),
+(6, 'Delhi Capitals', 20),
+(7, 'Rajasthan Royals', 20),
+(8, 'Punjab Kings', 20);
+
+-- Insert sample data for players
+INSERT INTO player (pid, pname, speciatlity, doj, num_matches, tid) VALUES
+(1, 'MS Dhoni', 'wk', '2004-12-23', 350, 1),
+(2, 'Virat Kohli', 'batter', '2008-08-18', 300, 3),
+(3, 'Rohit Sharma', 'batter', '2007-09-10', 320, 2),
+(4, 'Ravindra Jadeja', 'all rounder', '2009-02-08', 270, 1),
+(5, 'Jasprit Bumrah', 'bowler', '2013-01-23', 200, 2),
+(6, 'David Warner', 'batter', '2008-02-25', 290, 5),
+(7, 'KL Rahul', 'batter', '2011-07-11', 260, 8),
+(8, 'Shreyas Iyer', 'batter', '2015-06-06', 180, 6);
+
+-- Insert sample data for matches
+INSERT INTO matches (mid, team_1, team_2, match_date, winner, man_of_the_match) VALUES
+(1, 1, 2, '2024-04-01', 1, 4),
+(2, 3, 4, '2024-04-02', 3, 2),
+(3, 5, 6, '2024-04-03', 5, 6),
+(4, 7, 8, '2024-04-04', 7, 7);

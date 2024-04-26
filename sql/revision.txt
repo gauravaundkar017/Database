@@ -1,0 +1,156 @@
+
+create table product(
+	pid int primary key ,
+	pname varchar(20) not null  unique,
+	qty int check(qty > 0),
+	price float(9,2),
+	catid int,
+	sid int,
+	constraint fk_catid foreign key(catid) references category(cid) on update cascade on delete set null,	
+	constraint fk_sid foreign key(sid) references salesman(sid) on update cascade on delete set null
+); 
+*****************************************************************************************
+
+drop procedure getdiscount;
+delimiter //
+create procedure getdiscount(dpid int)
+begin 
+	declare dpname varchar(20);
+	declare dprice, d float(9,2); 
+	select pname, price into dpname, dprice from product where pid = dpid; 
+	
+	if dprice < 50 then set d = 0.03;
+	elseif dprice >=50 and dprice <=80 then set d = 0.07;
+	elseif dprice >=80 and dprice <=100 then set d = 0.08;
+	else set d = 0.12;
+	end if;
+	select dpid, dpname, dprice, (dprice - (dprice*d)), d;
+
+
+end //
+delimiter ;
+
+call getdiscount(134);
+
+*****************************************************
+drop procedure info;
+delimiter //
+create procedure info()
+begin
+	declare vfin,cnt int default 0;
+	declare iempno, ideptno int;
+	declare ijob, iename,s varchar(50);
+	declare isal,iavg float(9,2);
+	
+	
+	
+	declare empcur cursor for select empno, ename, job, sal, deptno from emp;
+	declare continue handler for NOT FOUND set vfin = 1;
+	
+	open empcur;
+		label1:loop
+			fetch empcur into iempno, iename, ijob, isal, ideptno;
+			if vfin = 1 then 
+				if cnt = 0 then 
+					select "emp is empty";
+				end if;
+				leave label1;
+			end if;
+			set cnt = cnt + 1;
+			select avg(sal) into iavg from emp where deptno = ideptno;
+			if iavg < isal then set s = 'greater';
+			elseif iavg = isal then set s = 'equal';
+			else set s = 'lesser';
+			end if;
+			
+			select iempno, iename, ijob, isal, ideptno, iavg, s;
+		end loop;
+	close empcur;	
+end //
+delimiter ;
+
+call info();
+
+
+**********************************
+delimiter //
+create function calexp1(d date) returns int
+    begin
+		declare vexp int;
+		set vexp = floor(datediff(curdate(), d)/365);
+		return vexp;
+	end //
+delimiter ;
+
+
+
+***********************************
+
+
+
+create table emp_audit(
+	id int ,
+	newname varchar(20), 
+	oldname  varchar(20), 
+	newsal float(9,2),
+	oldsal float(9,2),
+	user varchar(20),
+	action varchar(20),
+	day1 datetime 
+);
+
+create trigger insertEmp after insert on emp
+for each row
+	insert into emp_audit (id, newname,oldname,newsal,oldsal,user,action,day1 ) values 
+	(new.empno, new.ename, null , new.sal, null, user(), 'insert', now());
+
+create trigger delEmp after delete on emp
+for each row	
+	insert into emp_audit(id, newname,oldname,newsal,oldsal,user,action,day1 ) values 
+	(old.empno, null, old.ename, null, old.sal,user(), 'delete', now() );
+
+create trigger updateEmp before update on emp
+for each row	
+	insert into emp_audit(id, newname,oldname,newsal,oldsal,user,action,day1 ) values 
+	(new.empno, new.ename, old.ename, new.sal, old.sal,user(), 'update', now() );
+
+
+create trigger updateempdept before update on dept
+for each row
+	update emp 
+	set dname = new.dname
+	where dname = old.dname;
+	
+	
+*********************************************
+	
+	
+	
+select ename ,sal from (select ename ,sal, dense_rank() over (order by sal desc) as drk  from emp) e 
+where drk = 2;
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

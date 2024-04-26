@@ -1,0 +1,97 @@
+drop procedure diplayNumWhile;
+delimiter //
+create procedure diplayNumWhile(num int)
+begin
+	declare str varchar(100) default ' ';
+	declare n int default 1;
+	while n <= num do
+		set str = concat(str, n, ',');
+		set n = n + 1;
+	end while;
+	set str = substr(str,1,length(str)-1);
+	select str;
+end //
+delimiter ;
+call diplayNumWhile(10);
+
+***************************************************************************
+drop procedure displaynumrepeat;
+delimiter //
+create procedure displaynumrepeat(num int)
+begin
+	declare str varchar(100) default ' ';
+	declare n int default 2;
+	repeat 
+		set str = concat(str, n , ', ');
+		set n = n + 2;
+		until n>num
+	end repeat;
+	set str = substr(str,  1, length(str) - 1);
+	select str;
+end //
+delimiter ;
+call displaynumrepeat(20);
+
+drop procedure displaynumrepeat;
+delimiter //
+create procedure displaynumrepeat(num int)
+begin
+	declare str varchar(100) default ' ';
+	declare n int default 2;
+	repeat 
+		set str = concat(str, n , ', ');
+		set n = n + 2;
+		until n>10*num
+	end repeat;
+	set str = substr(str,  1, length(str) - 2);
+	select str;
+end //
+delimiter ;
+call displaynumrepeat(2);
+
+*************************************************************************
+drop procedure displaynumloop;
+delimiter //
+create procedure displaynumloop(num int)
+begin 
+	declare s varchar (100) default ' ';
+	declare n int default 1;
+	e1: loop
+		set s = concat(s,n, ', ');
+		set n = n + 1;
+		if (n > num) then 
+			leave e1;
+		end if;
+	end loop;
+	set s = substr(s,1,length(s)-2);
+	select s;
+end //
+delimiter ;
+call displaynumloop(10);
+
+drop procedure displaynumloop;
+delimiter //
+create procedure displaynumloop(num int)
+begin
+declare str varchar(100) default '';
+declare n int default 1;
+label1: loop
+set str=concat(str,n,','); #1,2,3,4,5,
+set n=n+1;
+if n>num then
+leave label1;
+end if;
+end loop;
+set str=substr(str,1,length(str)-1); -- it will delete the last character of the string
+select str;
+end//
+delimiter ;
+
+
+
+
+
+
+
+
+

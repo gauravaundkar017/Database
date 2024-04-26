@@ -1,0 +1,33 @@
+05/04/2024
+
+db.restaurants.createIndex({rating : 1});
+db.restaurants.getIndexes();
+db.restaurants.dropIndex('rating_1');
+
+
+// Update :
+db.restaurants.updateMany({}, {})
+
+
+-----increase price by 100 for all movies
+db.movies.updateMany({},{$inc:{price:100}})
+db.movies.updateMany({},{$inc:{price:100}})
+ db.movie.updateMany({price :{$nin : [null]}},{$inc:{price:-100}})
+
+
+-----decrease price by 100 for all movies
+db.movies.updateMany({},{$inc:{price:-100}})
+
+
+---increase price by 2%
+price=1*price+price*0.02
+     =price(1+0.02)
+     =price*1.02	 
+db.movie.updateOne({name: 'lagaan'},{$mul : {price : 1.02 }})
+
+
+---decrease price by 2%
+price=1*price-price*0.02
+     =price(1-0.02)
+     =price*0.98	 
+

@@ -1,0 +1,76 @@
+-- Exception handling
+drop procedure insertdept1;
+delimiter //
+create procedure insertdept1(did int, dname varchar(20), dloc varchar(20))
+begin 
+	declare exit handler for SQLEXCEPTION select "Error Occured";
+	insert into dept values(did,dname, dloc);
+	select did, dname, dloc;
+end //
+delimiter ;
+call insertdept1(7,'dname', 'loc');
+select * from dept;
+
+
+********************************************************************************************
+drop procedure IF EXISTS insertdept;
+delimiter //
+create procedure insertdept(eid int, ejob varchar(20), did int, esal float(9,2))
+begin 
+	declare vdept int default 0;
+	declare continue handler for 1265  select "To long value" as sizeofstring;
+	
+	declare continue handler for 1062 
+	begin
+		if vdept = 1 then 
+			select 'duplicate entry in dept or emp ' as deptduplicate;
+		
+		end if;
+	end;
+	
+	declare continue handler for 1644 select "Salary cannot be negative";
+	if esal < 0 then 
+		SIGNAL SQLSTATE '45000';
+	end if;	
+
+
+	
+	insert into emp values(eid,'xxxx', ejob, 2123, curdate(),esal,10,10);
+	set vdept = 1;
+	insert into dept values(did,'yyyyy', 'qqqqq');
+end //
+delimiter ;
+call insertdept(7369,'dnameeeeaaae', 90, -10);
+
+
+-------------------------------------------------------------------------------------------------
+drop procedure IF EXISTS insertdept;
+delimiter //
+create procedure insertdept(eid int, ejob varchar(20), did int, esal float(9,2))
+begin 
+	declare vdept int default 0;
+	declare continue handler for 1265  select "To long value" as sizeofstring;
+	
+	declare continue handler for 1062 
+	begin
+		if vdept = 1 then 
+			select 'duplicate entry in dept ' as deptduplicate;
+		else
+			select 'duplicate entry in emp' as empduplicate;
+		end if;
+	end;
+	
+	declare continue handler for 1644 select "Salary cannot be negative";
+	if esal < 0 then 
+		SIGNAL SQLSTATE '45000';
+	end if;	
+
+
+	
+	insert into emp values(eid,'xxxx', ejob, 2123, curdate(),esal,10,10);
+	set vdept = 1;
+	insert into dept values(did,'yyyyy', 'qqqqq');
+end //
+delimiter ;
+call insertdept(7369,'dnameeeeaaae', 90, -10);
+

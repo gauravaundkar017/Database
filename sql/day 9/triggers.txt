@@ -1,0 +1,78 @@
+/*
+2. Write a trigger which add entry in audit table when user tries to insert or delete
+records in employee table store empno,name,username and date on which
+operation performed and which action is done insert or delete. in emp_audit table.
+create table before writing trigger.
+create table empaudit(
+empno int;
+ename varchar(20),
+username varchar(20);
+chdate date;
+action varchar(20)
+);
+*/
+
+drop table emp_audit;
+create table emp_audit(
+	aempno int,
+	aename varchar(20),
+	auser varchar(30),
+	ahdate date,
+	action varchar(10),
+	oldsal float(9,2),
+	newsal float(9,2)
+
+);
+	
+drop trigger insertemp;
+create trigger insertemp after insert on emp
+for each row
+insert into emp_audit (aempno,aename,oldsal,newsal,ahdate,auser,action) 
+values(NEW.empno, NEW.ename,null, new.sal, curdate(), user(), 'insert');
+insert into emp values(21, 'rahu', 'don', '123', curdate(), 123, 123, 10);
+select * from emp_audit;
+
+drop trigger deleteemp;
+create trigger deleteemp after delete on emp
+for each row 
+insert into emp_audit (aempno,aename,oldsal,newsal,ahdate,auser,action) 
+values (old.empno, old.ename, old.sal, null, curdate(), user(), 'delete');
+ delete from emp where empno = 21;
+select * from emp_audit;
+
+
+drop trigger updateemp;
+create trigger updateemp before update on emp
+for each row 
+insert into emp_audit (aempno,aename,oldsal,newsal,ahdate,auser,action) 
+values (old.empno, old.ename, old.sal,new.sal, curdate(), user(), 'update');
+select * from emp_audit;
+
+********************************************************************************************
+3. Create table vehicle_history. Write a trigger to store old vehicleprice and new vehicle
+price in history table before you update price in vehicle table
+
+use showroom;
+drop table vehicle_history;
+create table vehicle_history(
+vno int,
+vname varchar(20),
+oldprice decimal(9,2),
+newprice decimal(9,2),
+chdate datetime,
+username varchar(20),
+action varchar(10)
+);
+
+drop trigger updatevehi;
+create trigger updatevehi before update on vehicle
+for each row 
+insert into vehicle_history (vno,vname,oldprice,newprice,chdate,username,action) 
+values (old.vid, old.vname, old.price,new.price, now(), user(), 'update');
+select * from vehicle_history;
+update vehicle
+set price = 110000
+where vid = 1;
+select * from vehicle_history;
+
+

@@ -1,0 +1,164 @@
+create table vehicle(
+	vid int primary key auto_increment,
+	vname varchar(20),
+	price int,
+	descp varchar(30)
+);
+
+create table if not exists customer(
+	custid int primary key auto_increment,
+	cname varchar(20),
+	address varchar(20)
+);
+
+create table if not exists salesman(
+	sid int primary key auto_increment,
+	sname varchar(20),
+	address varchar(20)
+);
+alter table salesman auto_increment = 10;
+
+create table cust_vehicle(
+	custid int,
+	vid int,
+	sid int,
+	buy_price int,
+	primary key(custid, vid),
+	constraint fk_custid foreign key(custid) references 	customer(custid) ,
+	constraint fk_vid foreign key(vid) references vehicle(vid) 
+	,
+	constraint fk_sid foreign key(sid) references salesman(sid)
+		
+); 
+
+
+
+
+insert into vehicle (vname, price, descp)
+values  ('Activa', 80000, 'mitra activa jabardast'),
+	('santro', 800000, 'mitra santro thike'),
+	('Motor bike', 10000, 'Bhava motor bike bharich ki')
+;
+
+
+insert into customer (cname, address)
+values  ('Nilima',  'Pimpari'),
+	('Ganesh',  'Pune'),
+	('Pankaj', 'Mumbai')
+;
+
+insert into salesman (sname, address)
+values  ('rajesh',  'mumbai'),
+	('seema',  'pune'),
+	('rakhi', 'pune')
+;
+
+insert into cust_vehicle(custid, vid, sid, buy_price)
+values (1, 1, 10, 75000),
+       (1, 2, 10, 790000),
+       (2, 3, 11, 80000),
+       (3, 3, 11, 75000),
+       (3, 2, 10, 800000)
+;
+
+
+
+
+3. find all customer name,vehicle name, salesman name, discount earn by all customer
+
+select c.cname, v.vname, s.sname,  
+case when (v.price - cv.buy_price) > 0 then (v.price - cv.buy_price) else 0 end as  'discount'  
+from customer c, vehicle v, salesman s, cust_vehicle cv
+where c.custid = cv.custid and cv.vid = v.vid and cv.sid = s.sid
+;  
+
+3. find all customer name,vehicle name, salesman name, discount earn by all customer
+select 
+	c.cname, 
+	v.vname,
+	s.sname,
+	case
+		when (v.price - cv.Buy_price) > 0 then (v.price - cv.Buy_price) 
+		else 0 
+	end as Discount		
+from customer c
+inner join cust_vehicle cv on c.custid = cv.custid
+inner join vehicle v on v.vid = cv.vid
+inner join salesman s on s.sid = cv.sid;
+
+
+4. find all customer name,vehicle name,salesman name for all salesman who stays in pune
+select c.cname, v.vname, s.sname, s.address  from customer c 
+inner join cust_vehicle cv on c.custid = cv.custid
+inner join vehicle v on v.vid = cv.vid
+inner join salesman s on s.sid = cv.sid 
+where s.address = 'pune' ;
+
+
+5. find how many customers bought motor bike
+select c.cname  from customer c where
+exists (
+	select * from vehicle v 
+	inner join cust_vehicle cv on cv.vid = v.vid
+	where v.vname = 'Motor bike' and c.custid = cv.custid  
+);
+select count(*)  from customer c where
+exists (
+	select * from vehicle v 
+	inner join cust_vehicle cv on cv.vid = v.vid
+	where v.vname = 'Motor bike' and c.custid = cv.custid  
+);
+
+
+6. create a view find_discount which displays output
+create view findDiscount as 
+select c.cname, v.vname, v.price, 
+	case
+	when (v.price - cv.Buy_price) > 0 then (v.price - cv.Buy_price) 
+	else 0 
+	end as Discount		
+from customer c
+inner join cust_vehicle cv on c.custid = cv.custid
+inner join vehicle v on v.vid = cv.vid
+inner join salesman s on s.sid = cv.sid;
+
+
+
+8. create view my_hr to display empno,ename,job,comm for all employees who earn
+commission
+use iacsd_;
+
+create view my_hr as
+select e.empno, e.ename, e.job, comm from emp e where comm is not null and comm > 0; 
+
+create view mgr40 as
+select empno, ename,deptno from emp where deptno = 30
+with check option;
+
+
+delimiter //
+create procedure getminsal1(did int, msal float(9,2) )
+begin 
+	select min(sal) from emp where deptno = 30 ;
+end //
+delimiter ;
+call getminsal1(10, 2000);
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
